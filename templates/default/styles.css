@@ -1,0 +1,57 @@
+/* support of html5 elements in old browsers */
+article, section, aside, hgroup, nav, header, footer, figure, figcaption {
+  display: block;
+}
+
+#main {
+    width: 60em;
+    margin: 0 auto 0 auto;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:link {
+}
+
+a:visited {
+}
+
+a:focus {
+    text-decoration: underline;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a:active {
+    text-decoration: underline;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border-bottom: 1px dotted #000;
+    padding: 0.6em 0.3em;
+}
+
+th {
+    background: #eee;
+}
+
+td.name {
+    text-align: left;
+}
+
+td.modified {
+    text-align: center;
+}
+
+td.size {
+    text-align: right;
+}

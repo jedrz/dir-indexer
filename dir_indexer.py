@@ -32,20 +32,20 @@ def create_html(root, dirs, files, template):
         table = ['''<table>
         <tr>
             <th>Name</th>
-            <th>Date</th>
+            <th>Modified</th>
             <th>Size</th>
         </tr>
         ''']
         for d in dirs:
             table.append('''<tr>
-                    <td><a href="{}">{}</a></td>
+                    <td class="name"><a href="{}">{}</a></td>
                 </tr>'''.format(os.path.join(d, 'index.html'), d)) 
         for f in files:
             statinfo = os.stat(os.path.join(root, f))
             table.append('''<tr>
-                    <td><a href="{0}">{0}</a></td>
-                    <td>{1}</td>
-                    <td>{2}</td>
+                    <td class="name"><a href="{0}">{0}</a></td>
+                    <td class="modified">{1}</td>
+                    <td class="size">{2}</td>
                 </tr>'''.format(f, format_mtime(statinfo.st_mtime),
                                    format_size(statinfo.st_size)))
         table += ['</table>']
