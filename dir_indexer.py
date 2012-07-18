@@ -63,7 +63,6 @@ def generate(path, template_dir):
         shutil.copy(css_path, root)
 
 
-
 def main():
     parser = argparse.ArgumentParser(description='Generate')
     parser.add_argument('path',

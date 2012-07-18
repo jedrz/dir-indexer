@@ -12,12 +12,6 @@ a {
     text-decoration: none;
 }
 
-a:link {
-}
-
-a:visited {
-}
-
 a:focus {
     text-decoration: underline;
 }
