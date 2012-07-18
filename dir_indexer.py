@@ -27,7 +27,7 @@ def format_mtime(mtime):
     return time.strftime('%d.%m.%y %H:%M', mtime)
 
 
-def create_html(root, dirnames, filenames, template):
+def create_index(root, dirnames, filenames, template):
     with open(os.path.join(root, 'index.html'), 'w') as outfile:
         table = ['''<table>
         <tr>
