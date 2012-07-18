@@ -3,6 +3,10 @@ article, section, aside, hgroup, nav, header, footer, figure, figcaption {
   display: block;
 }
 
+body {
+    font-size: 1em;
+}
+
 #main {
     width: 60em;
     margin: 0 auto 0 auto;
@@ -40,12 +44,15 @@ th {
 
 td.name {
     text-align: left;
+    width: 60%;
 }
 
 td.modified {
     text-align: center;
+    width 25%;
 }
 
 td.size {
     text-align: right;
+    width 15%;
 }

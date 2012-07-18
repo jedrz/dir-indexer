@@ -27,14 +27,20 @@ def format_mtime(mtime):
     return time.strftime('%d.%m.%y %H:%M', mtime)
 
 
-def is_excluded(path, exclude):
-    for ex in exclude:
-        if os.path.samefile(path, ex):
-            return True
+def is_excluded(path, excluded_paths, excluded_names):
+    for ex in excluded_paths:
+        try:
+            if os.path.samefile(path, ex):
+                return True
+        except OSError:
+            pass
+    if os.path.basename(path) in excluded_names:
+        return True
     return False
 
 
-def create_index(root, dirnames, filenames, template, exclude=[]):
+def create_index(root, dirnames, filenames, template, excluded_paths=[],
+                 excluded_names=[]):
     with open(os.path.join(root, 'index.html'), 'w') as outfile:
         table = ['''<table>
         <tr>
@@ -44,12 +50,14 @@ def create_index(root, dirnames, filenames, template, exclude=[]):
         </tr>
         ''']
         for d in dirnames:
-            if not is_excluded(os.path.join(root, d), exclude):
+            if not is_excluded(os.path.join(root, d), excluded_paths,
+                               excluded_names):
                 table.append('''<tr>
                         <td class="name" colspan="4"><a href="{}">{}</a></td>
                     </tr>'''.format(os.path.join(d, 'index.html'), d)) 
         for f in filenames:
-            if not is_excluded(os.path.join(root, f), exclude):
+            if not is_excluded(os.path.join(root, f), excluded_paths,
+                               excluded_names):
                 statinfo = os.stat(os.path.join(root, f))
                 table.append('''<tr>
                         <td class="name"><a href="{0}">{0}</a></td>
@@ -62,17 +70,21 @@ def create_index(root, dirnames, filenames, template, exclude=[]):
 
 
 def generate(path, template_dir, quiet=False, recursive=False, level=1,
-             exclude=[]):
+             excluded_paths=[], excluded_names=[]):
     template_path = os.path.join(template_dir, 'index.html')
     css_path = os.path.join(template_dir, 'styles.css')
     with open(template_path) as template:
         template = template.read()
+    # hide index.html and styles.css
+    excluded_names += ['index.html', 'styles.css']
 
     for root, dirnames, filenames in os.walk(path):
         if recursive or level > 1:
-            create_index(root, dirnames, filenames, template, exclude)
+            create_index(root, dirnames, filenames, template,
+                         excluded_paths, excluded_names)
         else:
-            create_index(root, [], filenames, template, exclude)
+            create_index(root, [], filenames, template,
+                         excluded_paths, excluded_names)
         shutil.copy(css_path, root)
         level -= 1
         if not quiet:
@@ -101,7 +113,11 @@ def main():
                         type=int, default=1)
     parser.add_argument('-e', '--exclude',
                         help='exclude path(s) from being indexed',
-                        nargs='+', default=[], metavar='PATH(S)')
+                        nargs='+', default=[], metavar='PATH')
+    parser.add_argument('--exclude-names',
+                        help='exclude names from being indexed '
+                             '(basenames are being compared)',
+                        default=[], metavar='NAME')
     args = parser.parse_args()
 
 
@@ -114,7 +130,7 @@ def main():
         sys.exit(1)
 
     generate(args.path, args.template, args.quiet, args.recursive, args.level,
-             args.exclude)
+             args.exclude, args.exclude_names)
 
 
 if __name__ == '__main__':
