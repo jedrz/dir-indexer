@@ -27,7 +27,7 @@ def format_mtime(mtime):
     return time.strftime('%d.%m.%y %H:%M', mtime)
 
 
-def is_excluded(path, excluded_paths, excluded_names):
+def is_excluded(path, excluded_paths, excluded_names, show_hidden=False):
     for ex in excluded_paths:
         try:
             if os.path.samefile(path, ex):
@@ -36,11 +36,13 @@ def is_excluded(path, excluded_paths, excluded_names):
             pass
     if os.path.basename(path) in excluded_names:
         return True
+    if not show_hidden and os.path.basename(path).startswith('.'):
+        return True
     return False
 
 
 def create_index(root, dirnames, filenames, template, excluded_paths=[],
-                 excluded_names=[]):
+                 excluded_names=[], show_hidden=False):
     with open(os.path.join(root, 'index.html'), 'w') as outfile:
         table = ['''<table>
         <tr>
@@ -51,13 +53,13 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
         ''']
         for d in dirnames:
             if not is_excluded(os.path.join(root, d), excluded_paths,
-                               excluded_names):
+                               excluded_names, show_hidden):
                 table.append('''<tr>
                         <td class="name" colspan="4"><a href="{}">{}</a></td>
                     </tr>'''.format(os.path.join(d, 'index.html'), d)) 
         for f in filenames:
             if not is_excluded(os.path.join(root, f), excluded_paths,
-                               excluded_names):
+                               excluded_names, show_hidden):
                 statinfo = os.stat(os.path.join(root, f))
                 table.append('''<tr>
                         <td class="name"><a href="{0}">{0}</a></td>
@@ -70,7 +72,7 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
 
 
 def generate(path, template_dir, quiet=False, recursive=False, level=1,
-             excluded_paths=[], excluded_names=[]):
+             excluded_paths=[], excluded_names=[], show_hidden=False):
     template_path = os.path.join(template_dir, 'index.html')
     css_path = os.path.join(template_dir, 'styles.css')
     with open(template_path) as template:
@@ -118,6 +120,9 @@ def main():
                         help='exclude names from being indexed '
                              '(basenames are being compared)',
                         default=[], metavar='NAME')
+    parser.add_argument('--hidden',
+                        help='show hidden files',
+                        action='store_true')
     args = parser.parse_args()
 
 
@@ -130,7 +135,7 @@ def main():
         sys.exit(1)
 
     generate(args.path, args.template, args.quiet, args.recursive, args.level,
-             args.exclude, args.exclude_names)
+             args.exclude, args.exclude_names, args.hidden)
 
 
 if __name__ == '__main__':
