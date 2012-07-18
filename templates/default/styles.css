@@ -4,12 +4,16 @@ article, section, aside, hgroup, nav, header, footer, figure, figcaption {
 }
 
 body {
-    font-size: 1em;
+    background-color: #ccc;
+    padding 5em;
 }
 
 #main {
+    background-color: #fff;
     width: 60em;
-    margin: 0 auto 0 auto;
+    margin: 3em auto 3em auto;
+    padding: 2em;
+    border: 1px solid #000;
 }
 
 a {
@@ -29,7 +33,9 @@ a:active {
 }
 
 table {
-    width: 100%;
+    width: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
     border-collapse: collapse;
 }
 
