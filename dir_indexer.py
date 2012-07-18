@@ -43,31 +43,31 @@ def is_excluded(path, excluded_paths, excluded_names, show_hidden=False):
 
 def create_index(root, dirnames, filenames, template, excluded_paths=[],
                  excluded_names=[], show_hidden=False):
-    with open(os.path.join(root, 'index.html'), 'w') as outfile:
-        table = ['''<table>
+    table = ['''<table>
         <tr>
             <th>Name</th>
             <th>Modified</th>
             <th>Size</th>
-        </tr>
-        ''']
-        for d in dirnames:
-            if not is_excluded(os.path.join(root, d), excluded_paths,
-                               excluded_names, show_hidden):
-                table.append('''<tr>
-                        <td class="name" colspan="4"><a href="{}">{}</a></td>
-                    </tr>'''.format(os.path.join(d, 'index.html'), d)) 
-        for f in filenames:
-            if not is_excluded(os.path.join(root, f), excluded_paths,
-                               excluded_names, show_hidden):
-                statinfo = os.stat(os.path.join(root, f))
-                table.append('''<tr>
-                        <td class="name"><a href="{0}">{0}</a></td>
-                        <td class="modified">{1}</td>
-                        <td class="size">{2}</td>
-                    </tr>'''.format(f, format_mtime(statinfo.st_mtime),
-                                       format_size(statinfo.st_size)))
-        table += ['</table>']
+        </tr>''']
+    for d in dirnames:
+        if not is_excluded(os.path.join(root, d), excluded_paths,
+                           excluded_names, show_hidden):
+            table.append('''<tr>
+                    <td class="name" colspan="4"><a href="{}">{}</a></td>
+                </tr>'''.format(os.path.join(d, 'index.html'), d)) 
+    for f in filenames:
+        if not is_excluded(os.path.join(root, f), excluded_paths,
+                           excluded_names, show_hidden):
+            statinfo = os.stat(os.path.join(root, f))
+            table.append('''<tr>
+                    <td class="name"><a href="{0}">{0}</a></td>
+                    <td class="modified">{1}</td>
+                    <td class="size">{2}</td>
+                </tr>'''.format(f, format_mtime(statinfo.st_mtime),
+                                   format_size(statinfo.st_size)))
+    table += ['</table>']
+
+    with open(os.path.join(root, 'index.html'), 'w') as outfile:
         outfile.write(template.format(files='\n'.join(table)))
 
 
