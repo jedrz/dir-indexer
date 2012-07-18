@@ -96,7 +96,10 @@ def generate(path, template_dir, quiet=False, recursive=False, level=1,
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Generate')
+    parser = argparse.ArgumentParser(description='Generate a html file with '
+                                                 'the content of directory',
+                                     epilog='All index.html and styles.css '
+                                            'files will be OVERWRITTEN')
     parser.add_argument('path',
                         help='path to public folder')
     parser.add_argument('-t', '--template',
