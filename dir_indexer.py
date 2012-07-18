@@ -52,27 +52,34 @@ def create_html(root, dirnames, filenames, template):
         outfile.write(template.format(files='\n'.join(table)))
 
 
-def generate(path, template_dir):
+def generate(path, template_dir, quiet=False, recursive=False):
     template_path = os.path.join(template_dir, 'index.html')
     css_path = os.path.join(template_dir, 'styles.css')
     with open(template_path) as template:
         template = template.read()
 
     for root, dirnames, filenames in os.walk(path):
-        create_html(root, dirnames, filenames, template)
+        if recursive:
+            create_html(root, dirnames, filenames, template)
+        else:
+            create_html(root, [], filenames, template)
         shutil.copy(css_path, root)
+        if not quiet:
+            print('Created index.html and styles.css in {}'.format(root))
+        if not recursive:
+            break
 
 
 def main():
     parser = argparse.ArgumentParser(description='Generate')
     parser.add_argument('path',
                         help='path to public folder')
-    parser.add_argument('-v', '--verbose',
-                        help='increase more verbose output',
-                        action='store_true')
     parser.add_argument('-t', '--template',
                         help='used template',
                         default='templates/default')
+    parser.add_argument('-q', '--quiet',
+                        help='print nothing',
+                        action='store_true')
     parser.add_argument('-R', '-r', '--recursive',
                         help='generate pages recursively',
                         action='store_true')
@@ -86,7 +93,7 @@ def main():
         print('Given template path {} is invalid'.format(args.template))
         sys.exit(1)
 
-    generate(args.path, args.template)
+    generate(args.path, args.template, args.quiet, args.recursive)
 
 
 if __name__ == '__main__':
