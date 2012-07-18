@@ -46,7 +46,7 @@ def create_index(root, dirnames, filenames, template, exclude=[]):
         for d in dirnames:
             if not is_excluded(os.path.join(root, d), exclude):
                 table.append('''<tr>
-                        <td class="name"><a href="{}">{}</a></td>
+                        <td class="name" colspan="4"><a href="{}">{}</a></td>
                     </tr>'''.format(os.path.join(d, 'index.html'), d)) 
         for f in filenames:
             if not is_excluded(os.path.join(root, f), exclude):
