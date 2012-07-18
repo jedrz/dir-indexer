@@ -27,7 +27,7 @@ def format_mtime(mtime):
     return time.strftime('%d.%m.%y %H:%M', mtime)
 
 
-def create_html(root, dirs, files, template):
+def create_html(root, dirnames, filenames, template):
     with open(os.path.join(root, 'index.html'), 'w') as outfile:
         table = ['''<table>
         <tr>
@@ -36,11 +36,11 @@ def create_html(root, dirs, files, template):
             <th>Size</th>
         </tr>
         ''']
-        for d in dirs:
+        for d in dirnames:
             table.append('''<tr>
                     <td class="name"><a href="{}">{}</a></td>
                 </tr>'''.format(os.path.join(d, 'index.html'), d)) 
-        for f in files:
+        for f in filenames:
             statinfo = os.stat(os.path.join(root, f))
             table.append('''<tr>
                     <td class="name"><a href="{0}">{0}</a></td>
@@ -58,8 +58,8 @@ def generate(path, template_dir):
     with open(template_path) as template:
         template = template.read()
 
-    for root, dirs, files in os.walk(path):
-        create_html(root, dirs, files, template)
+    for root, dirnames, filenames in os.walk(path):
+        create_html(root, dirnames, filenames, template)
         shutil.copy(css_path, root)
 
 
