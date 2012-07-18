@@ -71,6 +71,17 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
         outfile.write(template.format(files='\n'.join(table)))
 
 
+def walk_level(path, level=1):
+    num_sep = path.count(os.sep)
+    for root, dirnames, filenames in os.walk(path):
+        yield root, dirnames, filenames
+        cur_num_sep = root.count(os.sep)
+        if cur_num_sep + 1 >= num_sep + level:
+            # it omits directories under some level
+            # you can read about this trick in python docs
+            del dirnames[:]
+
+
 def generate(path, template_dir, quiet=False, recursive=False, level=1,
              excluded_paths=[], excluded_names=[], show_hidden=False):
     template_path = os.path.join(template_dir, 'index.html')
@@ -80,19 +91,21 @@ def generate(path, template_dir, quiet=False, recursive=False, level=1,
     # hide index.html and styles.css
     excluded_names += ['index.html', 'styles.css']
 
-    for root, dirnames, filenames in os.walk(path):
+    if recursive:
+        mywalk = lambda p: os.walk(p)
+    else:
+        mywalk = lambda p: walk_level(p, level)
+    for root, dirnames, filenames in mywalk(path):
         if recursive or level > 1:
             create_index(root, dirnames, filenames, template,
                          excluded_paths, excluded_names)
         else:
             create_index(root, [], filenames, template,
                          excluded_paths, excluded_names)
-        shutil.copy(css_path, root)
         level -= 1
+        shutil.copy(css_path, root)
         if not quiet:
             print('Created index.html and styles.css in {}'.format(root))
-        if not recursive and level <= 0:
-            break
 
 
 def main():
