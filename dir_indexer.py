@@ -52,21 +52,22 @@ def create_index(root, dirnames, filenames, template):
         outfile.write(template.format(files='\n'.join(table)))
 
 
-def generate(path, template_dir, quiet=False, recursive=False):
+def generate(path, template_dir, quiet=False, recursive=False, level=1):
     template_path = os.path.join(template_dir, 'index.html')
     css_path = os.path.join(template_dir, 'styles.css')
     with open(template_path) as template:
         template = template.read()
 
     for root, dirnames, filenames in os.walk(path):
-        if recursive:
-            create_html(root, dirnames, filenames, template)
+        if recursive or level > 1:
+            create_index(root, dirnames, filenames, template)
         else:
-            create_html(root, [], filenames, template)
+            create_index(root, [], filenames, template)
         shutil.copy(css_path, root)
+        level -= 1
         if not quiet:
             print('Created index.html and styles.css in {}'.format(root))
-        if not recursive:
+        if not recursive and level <= 0:
             break
 
 
@@ -80,10 +81,16 @@ def main():
     parser.add_argument('-q', '--quiet',
                         help='print nothing',
                         action='store_true')
-    parser.add_argument('-R', '-r', '--recursive',
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-R', '-r', '--recursive',
                         help='generate pages recursively',
                         action='store_true')
+    group.add_argument('-l', '--level',
+                        help='generate pages recursively with the maximum '
+                             'recursion depth level',
+                        type=int, default=1)
     args = parser.parse_args()
+
 
     if not os.path.isdir(args.path):
         print('{} is not a directory'.format(args.path))
@@ -93,7 +100,7 @@ def main():
         print('Given template path {} is invalid'.format(args.template))
         sys.exit(1)
 
-    generate(args.path, args.template, args.quiet, args.recursive)
+    generate(args.path, args.template, args.quiet, args.recursive, args.level)
 
 
 if __name__ == '__main__':
