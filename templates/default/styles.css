@@ -5,13 +5,13 @@ article, section, aside, hgroup, nav, header, footer, figure, figcaption {
 
 body {
     background-color: #ccc;
-    padding 5em;
+    font-size: 16px;
 }
 
 #main {
     background-color: #fff;
-    width: 60em;
-    margin: 3em auto 3em auto;
+    width: 800px;
+    margin: 3em auto;
     padding: 2em;
     border: 1px solid #000;
 }
