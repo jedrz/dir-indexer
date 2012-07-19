@@ -27,11 +27,13 @@ def format_size(size_b):
 
 
 def format_mtime(mtime):
+    """Format time given in seconds"""
     mtime = time.localtime(mtime)
     return time.strftime(DATE_FORMAT, mtime)
 
 
 def is_excluded(path, excluded_paths, excluded_names, show_hidden=False):
+    """Check if path should be excluded from indexing"""
     for ex in excluded_paths:
         try:
             if os.path.samefile(path, ex):
@@ -47,6 +49,15 @@ def is_excluded(path, excluded_paths, excluded_names, show_hidden=False):
 
 def create_index(root, dirnames, filenames, template, excluded_paths=[],
                  excluded_names=[], show_hidden=False):
+    """Create an index for 'root' directory.
+    The index is saved in root/index.html.
+
+    arguments:
+     root -- path to directory which should be indexed
+     dirnames -- names of directories in 'root'
+     filenames -- files in 'root'
+     template -- html template
+    """
     table = ['''<table>
         <tr>
             <th>Name</th>
@@ -77,12 +88,14 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
 
     gen_date = datetime.datetime.now()
     gen_date = gen_date.strftime(DATE_FORMAT)
+
     with open(os.path.join(root, 'index.html'), 'w') as outfile:
         outfile.write(template.format(files='\n'.join(table),
                                       gen_date=gen_date))
 
 
 def walk_level(path, level=1):
+    """os.walk function but with recursion depth level"""
     num_sep = path.count(os.sep)
     for root, dirnames, filenames in os.walk(path):
         yield root, dirnames, filenames
