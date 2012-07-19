@@ -10,6 +10,9 @@ import sys
 import argparse
 
 
+DATE_FORMAT = '%d-%m-%Y %H:%M'
+
+
 def format_size(size_b):
     if size_b <= 1024:
         return '{:.2f} b'.format(size_b)
@@ -25,7 +28,7 @@ def format_size(size_b):
 
 def format_mtime(mtime):
     mtime = time.localtime(mtime)
-    return time.strftime('%d.%m.%y %H:%M', mtime)
+    return time.strftime(DATE_FORMAT, mtime)
 
 
 def is_excluded(path, excluded_paths, excluded_names, show_hidden=False):
@@ -69,7 +72,7 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
     table += ['</table>']
 
     gen_date = datetime.datetime.now()
-    gen_date = gen_date.strftime('%d.%m.%Y %H:%M')
+    gen_date = gen_date.strftime(DATE_FORMAT)
     with open(os.path.join(root, 'index.html'), 'w') as outfile:
         outfile.write(template.format(files='\n'.join(table),
                                       gen_date=gen_date))
