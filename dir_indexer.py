@@ -102,7 +102,6 @@ def generate(path, template_dir, quiet=False, recursive=False, level=1,
         else:
             create_index(root, [], filenames, template,
                          excluded_paths, excluded_names)
-        level -= 1
         shutil.copy(css_path, root)
         if not quiet:
             print('Created index.html and styles.css in {}'.format(root))
