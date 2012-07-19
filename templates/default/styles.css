@@ -29,8 +29,7 @@ a:active {
 
 table {
     width: 90%;
-    margin-left: 5%;
-    margin-right: 5%;
+    margin: 2em 5%;
     border-collapse: collapse;
 }
 
@@ -40,7 +39,7 @@ th, td {
 }
 
 th {
-    background: #eee;
+    background-color: #eee;
 }
 
 td.name {
@@ -60,5 +59,4 @@ td.size {
 
 #footer {
     font-size: 0.9em;
-    margin-top: 1.5em;
 }
