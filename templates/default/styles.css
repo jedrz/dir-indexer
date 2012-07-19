@@ -1,14 +1,9 @@
-/* support of html5 elements in old browsers */
-article, section, aside, hgroup, nav, header, footer, figure, figcaption {
-  display: block;
-}
-
 body {
     background-color: #ccc;
     font-size: 12px;
 }
 
-#main {
+#content {
     background-color: #fff;
     width: 800px;
     margin: 3em auto;
@@ -61,4 +56,9 @@ td.modified {
 td.size {
     text-align: right;
     width 15%;
+}
+
+#footer {
+    font-size: 0.9em;
+    margin-top: 1em;
 }
