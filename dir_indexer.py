@@ -91,10 +91,8 @@ def generate(path, template_dir, quiet=False, recursive=False, level=1,
     # hide index.html and styles.css
     excluded_names += ['index.html', 'styles.css']
 
-    if recursive:
-        mywalk = lambda p: os.walk(p)
-    else:
-        mywalk = lambda p: walk_level(p, level)
+    mywalk = lambda p: os.walk(p) if recursive else lambda p: \
+            walk_level(p, level)
     for root, dirnames, filenames in mywalk(path):
         if recursive or level > 1:
             create_index(root, dirnames, filenames, template,
