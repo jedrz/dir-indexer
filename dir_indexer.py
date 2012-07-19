@@ -56,9 +56,13 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
     for d in dirnames:
         if not is_excluded(os.path.join(root, d), excluded_paths,
                            excluded_names, show_hidden):
+            statinfo = os.stat(os.path.join(root, d))
             table.append('''<tr>
-                    <td class="name" colspan="4"><a href="{}">{}</a></td>
-                </tr>'''.format(os.path.join(d, 'index.html'), d)) 
+                    <td class="name"><a href="{}">{}</a></td>
+                    <td class="modified">{}</td>
+                    <td></td>
+                </tr>'''.format(os.path.join(d, 'index.html'), d,
+                                format_mtime(statinfo.st_mtime)))
     for f in filenames:
         if not is_excluded(os.path.join(root, f), excluded_paths,
                            excluded_names, show_hidden):
