@@ -84,7 +84,7 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
                     <td class="size">{2}</td>
                 </tr>'''.format(f, format_mtime(statinfo.st_mtime),
                                    format_size(statinfo.st_size)))
-    table += ['</table>']
+    table.append('</table>')
 
     gen_date = datetime.datetime.now()
     gen_date = gen_date.strftime(DATE_FORMAT)
