@@ -5,6 +5,7 @@ import os
 import os.path
 import shutil
 import time
+import datetime
 import sys
 import argparse
 
@@ -67,8 +68,11 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
                                    format_size(statinfo.st_size)))
     table += ['</table>']
 
+    gen_date = datetime.datetime.now()
+    gen_date = gen_date.strftime('%d.%m.%Y %H:%M')
     with open(os.path.join(root, 'index.html'), 'w') as outfile:
-        outfile.write(template.format(files='\n'.join(table)))
+        outfile.write(template.format(files='\n'.join(table),
+                                      gen_date=gen_date))
 
 
 def walk_level(path, level=1):
