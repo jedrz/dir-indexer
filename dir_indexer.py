@@ -167,7 +167,7 @@ def main():
     parser.add_argument('--exclude-names',
                         help='exclude names from being indexed '
                              '(basenames are being compared)',
-                        default=[], metavar='NAME')
+                        nargs='+', default=[], metavar='NAME')
     parser.add_argument('--hidden',
                         help='show hidden files',
                         action='store_true')
