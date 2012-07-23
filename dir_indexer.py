@@ -155,7 +155,7 @@ def main():
     group.add_argument('-l', '--level',
                         help='generate pages recursively with the maximum '
                              'recursion depth level',
-                        type=int, default=1)
+                        type=int, default=0)
     parser.add_argument('-e', '--exclude',
                         help='exclude path(s) from being indexed',
                         nargs='+', default=[], metavar='PATH')
