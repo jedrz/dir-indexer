@@ -106,7 +106,7 @@ def walk_level(path, level=-1):
     for root, dirnames, filenames in os.walk(path):
         cur_level = root.count(os.sep) - num_sep
         yield root, dirnames, filenames, cur_level
-        if level > 0 and cur_level >= level:
+        if level >= 0 and cur_level >= level:
             # it omits directories under some level
             # you can read about this trick in python docs
             del dirnames[:]
@@ -121,8 +121,13 @@ def generate(path, template_dir, quiet=False, recursive=False, level=0,
     # hide index.html and styles.css
     excluded_names += ['index.html', 'styles.css']
     # choose walk function (with limited recursion depth or no)
-    mywalk = lambda p: walk_level(p) if recursive else lambda p: \
-            walk_level(p, level)
+    #mywalk = lambda p: walk_level(p) if recursive else lambda p: \
+    #        walk_level(p, level)
+    # (the shortcut doesn't work ???)
+    if recursive:
+        mywalk = lambda p: walk_level(p)
+    else:
+        mywalk = lambda p: walk_level(p, level)
     for root, dirnames, filenames, cur_level in mywalk(path):
         if recursive or level > cur_level:
             create_index(root, dirnames, filenames, template,
