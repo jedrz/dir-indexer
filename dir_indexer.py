@@ -94,19 +94,25 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
                                       gen_date=gen_date))
 
 
-def walk_level(path, level=1):
-    """os.walk function but with recursion depth level"""
+def walk_level(path, level=-1):
+    """Similar to os.walk function but with yielding current level
+    from 'path'.
+    Argument 'level' -- how deep the recusion will go (if less than 0 then
+    there is no limit).
+    
+    from: http://stackoverflow.com/a/234329
+    """
     num_sep = path.count(os.sep)
     for root, dirnames, filenames in os.walk(path):
-        yield root, dirnames, filenames
-        cur_num_sep = root.count(os.sep)
-        if cur_num_sep + 1 >= num_sep + level:
+        cur_level = root.count(os.sep) - num_sep
+        yield root, dirnames, filenames, cur_level
+        if level > 0 and cur_level >= level:
             # it omits directories under some level
             # you can read about this trick in python docs
             del dirnames[:]
 
 
-def generate(path, template_dir, quiet=False, recursive=False, level=1,
+def generate(path, template_dir, quiet=False, recursive=False, level=0,
              excluded_paths=[], excluded_names=[], show_hidden=False):
     template_path = os.path.join(template_dir, 'index.html')
     css_path = os.path.join(template_dir, 'styles.css')
@@ -114,11 +120,11 @@ def generate(path, template_dir, quiet=False, recursive=False, level=1,
         template = template.read()
     # hide index.html and styles.css
     excluded_names += ['index.html', 'styles.css']
-
-    mywalk = lambda p: os.walk(p) if recursive else lambda p: \
+    # choose walk function (with limited recursion depth or no)
+    mywalk = lambda p: walk_level(p) if recursive else lambda p: \
             walk_level(p, level)
-    for root, dirnames, filenames in mywalk(path):
-        if recursive or level > 1:
+    for root, dirnames, filenames, cur_level in mywalk(path):
+        if recursive or level > cur_level:
             create_index(root, dirnames, filenames, template,
                          excluded_paths, excluded_names)
         else:
