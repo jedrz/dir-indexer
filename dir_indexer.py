@@ -165,7 +165,7 @@ def main():
                         help='exclude path(s) from being indexed',
                         nargs='+', default=[], metavar='PATH')
     parser.add_argument('--exclude-names',
-                        help='exclude names from being indexed '
+                        help='exclude name(s) from being indexed '
                              '(basenames are being compared)',
                         nargs='+', default=[], metavar='NAME')
     parser.add_argument('--hidden',
