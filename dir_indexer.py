@@ -48,7 +48,7 @@ def is_excluded(path, excluded_paths, excluded_names, show_hidden=False):
 
 
 def create_index(root, dirnames, filenames, template, excluded_paths=[],
-                 excluded_names=[], show_hidden=False):
+                 excluded_names=[], show_hidden=False, level=0):
     """Create an index for 'root' directory.
     The index is saved in root/index.html.
 
@@ -91,7 +91,8 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
 
     with open(os.path.join(root, 'index.html'), 'w') as outfile:
         outfile.write(template.format(files='\n'.join(table),
-                                      gen_date=gen_date))
+                                      gen_date=gen_date,
+                                      level='../' * level))
 
 
 def walk_level(path, level=-1):
@@ -131,13 +132,15 @@ def generate(path, template_dir, quiet=False, recursive=False, level=0,
     for root, dirnames, filenames, cur_level in mywalk(path):
         if recursive or level > cur_level:
             create_index(root, dirnames, filenames, template,
-                         excluded_paths, excluded_names)
+                         excluded_paths, excluded_names, show_hidden,
+                         cur_level)
         else:
             create_index(root, [], filenames, template,
-                         excluded_paths, excluded_names)
+                         excluded_paths, excluded_names, show_hidden,
+                         cur_level)
         shutil.copy(css_path, root)
         if not quiet:
-            print('Created index.html and styles.css in {}'.format(root))
+            print('Directory {} indexed'.format(root))
 
 
 def main():
