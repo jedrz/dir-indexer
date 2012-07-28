@@ -50,13 +50,18 @@ def is_excluded(path, excluded_paths, excluded_names, show_hidden=False):
 def create_index(root, dirnames, filenames, template, excluded_paths=[],
                  excluded_names=[], show_hidden=False, level=0):
     """Create an index for 'root' directory.
-    The index is saved in root/index.html.
+    The index is saved in root/index.html. 
+    Existing index.html will be overwritten.
 
     arguments:
-     root -- path to directory which should be indexed
-     dirnames -- names of directories in 'root'
-     filenames -- files in 'root'
-     template -- html template
+    root -- path to directory which should be indexed
+    dirnames -- names of directories in 'root'
+    filenames -- files in 'root'
+    template -- html template
+    excluded_paths -- paths which should be excluded from indexing
+    excluded_names -- {file,dir}names which should be excluded from indexing
+    show_hidden -- show hidden files (starting with '.')
+    level -- current level from the first indexed directory
     """
     table = ['''<table>
         <tr>
