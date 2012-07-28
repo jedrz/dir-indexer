@@ -12,6 +12,28 @@ import argparse
 
 DATE_FORMAT = '%d-%m-%Y %H:%M'
 
+TABLE_START = '<table>'
+
+TABLE_HEADING = '''    <tr>
+        <th>Name</th>
+        <th>Modified</th>
+        <th>Size</th>
+    </tr>'''
+
+TABLE_DIR = '''    <tr>
+        <td class="name"><a href="{name}/index.html">{name}</a></td>
+        <td class="modified">{modified}</td>
+        <td></td>
+    </tr>'''
+
+TABLE_FILE = '''    <tr>
+        <td class="name"><a href="{name}">{name}</a></td>
+        <td class="modified">{modified}</td>
+        <td class="size">{size}</td>
+    </tr>'''
+
+TABLE_END = '</table>'
+
 
 def format_size(size_b):
     if size_b <= 1024:
@@ -63,33 +85,23 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
     show_hidden -- show hidden files (starting with '.')
     level -- current level from the first indexed directory
     """
-    table = ['''<table>
-        <tr>
-            <th>Name</th>
-            <th>Modified</th>
-            <th>Size</th>
-        </tr>''']
+    table = [TABLE_START, TABLE_HEADING]
     for d in dirnames:
         if not is_excluded(os.path.join(root, d), excluded_paths,
                            excluded_names, show_hidden):
             statinfo = os.stat(os.path.join(root, d))
-            table.append('''<tr>
-                    <td class="name"><a href="{}">{}</a></td>
-                    <td class="modified">{}</td>
-                    <td></td>
-                </tr>'''.format(os.path.join(d, 'index.html'), d,
-                                format_mtime(statinfo.st_mtime)))
+            table.append(TABLE_DIR.format(
+                name=d,
+                modified=format_mtime(statinfo.st_mtime)))
     for f in filenames:
         if not is_excluded(os.path.join(root, f), excluded_paths,
                            excluded_names, show_hidden):
             statinfo = os.stat(os.path.join(root, f))
-            table.append('''<tr>
-                    <td class="name"><a href="{0}">{0}</a></td>
-                    <td class="modified">{1}</td>
-                    <td class="size">{2}</td>
-                </tr>'''.format(f, format_mtime(statinfo.st_mtime),
-                                   format_size(statinfo.st_size)))
-    table.append('</table>')
+            table.append(TABLE_FILE.format(
+                name=f,
+                modified=format_mtime(statinfo.st_mtime),
+                size=format_size(statinfo.st_size)))
+    table.append(TABLE_END)
 
     gen_date = datetime.datetime.now()
     gen_date = gen_date.strftime(DATE_FORMAT)
