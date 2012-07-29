@@ -1,3 +1,9 @@
+/* support of htlm5 elements for old browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+
 body {
     background-color: #ccc;
     font-size: 12px;
