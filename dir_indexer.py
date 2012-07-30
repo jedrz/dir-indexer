@@ -101,14 +101,14 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
     """
     # build table
     table = [TABLE_START, TABLE_HEADING]
-    for d in dirnames:
+    for d in sorted(dirnames, key=str.lower):
         if not is_excluded(os.path.join(root, d), excluded_paths,
                            excluded_names, show_hidden):
             statinfo = os.stat(os.path.join(root, d))
             table.append(TABLE_DIR.format(
                 name=d,
                 modified=format_mtime(statinfo.st_mtime)))
-    for f in filenames:
+    for f in sorted(filenames, key=str.lower):
         if not is_excluded(os.path.join(root, f), excluded_paths,
                            excluded_names, show_hidden):
             statinfo = os.stat(os.path.join(root, f))
