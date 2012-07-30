@@ -55,7 +55,14 @@ def format_mtime(mtime):
 
 
 def is_excluded(path, excluded_paths, excluded_names, show_hidden=False):
-    """Check if path should be excluded from indexing"""
+    """Check if 'path' is excluded in some way.
+    
+    arguments:
+    path -- path to check
+    excluded_paths -- paths which are compared with 'path' as the same files
+    excluded_names -- basename of 'path' is compared with them
+    show_hidden -- show hidden files (starting with '.')
+    """
     for ex in excluded_paths:
         try:
             if os.path.samefile(path, ex):
@@ -71,7 +78,9 @@ def is_excluded(path, excluded_paths, excluded_names, show_hidden=False):
 
 def create_index(root, dirnames, filenames, template, excluded_paths=[],
                  excluded_names=[], show_hidden=False, level=0):
-    """Create an index for 'root' directory.
+    """Create the index for 'root' directory. Simply a table with
+    the content of 'root' is inserted into template.
+
     The index is saved in root/index.html. 
     Existing index.html will be overwritten.
 
@@ -79,12 +88,18 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
     root -- path to directory which should be indexed
     dirnames -- names of directories in 'root'
     filenames -- files in 'root'
-    template -- html template
+    template -- html template string with (most of them are optional):
+                {index} - table with the content of 'root' will be placed here
+                {gen_date} - generation date
+                {level} - [required] to handle path to .css file
+                          (some amount of ../ are inserted)
     excluded_paths -- paths which should be excluded from indexing
     excluded_names -- {file,dir}names which should be excluded from indexing
     show_hidden -- show hidden files (starting with '.')
     level -- current level from the first indexed directory
+             (only to use one .css file)
     """
+    # build table
     table = [TABLE_START, TABLE_HEADING]
     for d in dirnames:
         if not is_excluded(os.path.join(root, d), excluded_paths,
@@ -106,10 +121,11 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
     gen_date = datetime.datetime.now()
     gen_date = gen_date.strftime(DATE_FORMAT)
 
-    with open(os.path.join(root, 'index.html'), 'w') as outfile:
-        outfile.write(template.format(files='\n'.join(table),
-                                      gen_date=gen_date,
-                                      level='../' * level))
+    with open(os.path.join(root, 'index.html'), 'w') as index_file:
+        # fill the template
+        index_file.write(template.format(index='\n'.join(table),
+                                         gen_date=gen_date,
+                                         level='../' * level))
 
 
 def walk_level(path, level=-1):
@@ -132,6 +148,20 @@ def walk_level(path, level=-1):
 
 def generate(path, template_dir, quiet=False, recursive=False, level=0,
              excluded_paths=[], excluded_names=[], show_hidden=False):
+    """Create the index for 'path' and optionally deeper with a template.
+
+    arguments:
+    path -- where the indexing should start
+    template_dir -- path to directory with index.html and styles.css files
+    quiet -- will print some information or no
+    recursive -- should directiory in 'path' be indexed recursively,
+                 if 'recursive' is True then 'level' is ignored
+    level -- set the maximum level of recursion ('recursive' must be False
+             to 'level' has the effect)
+    excluded_paths -- paths which should be excluded from indexing
+    excluded_names -- {file,dir}names which should be excluded from indexing
+    show_hidden -- show hidden files (starting with '.')
+    """
     template_path = os.path.join(template_dir, 'index.html')
     css_path = os.path.join(template_dir, 'styles.css')
     with open(template_path) as template:
@@ -141,14 +171,12 @@ def generate(path, template_dir, quiet=False, recursive=False, level=0,
     # choose walk function (with limited recursion depth or no)
     mywalk = lambda p: walk_level(p, -1 if recursive else level)
     for root, dirnames, filenames, cur_level in mywalk(path):
-        if recursive or level > cur_level:
-            create_index(root, dirnames, filenames, template,
-                         excluded_paths, excluded_names, show_hidden,
-                         cur_level)
-        else:
-            create_index(root, [], filenames, template,
-                         excluded_paths, excluded_names, show_hidden,
-                         cur_level)
+        # check if current directory is the last to be indexed
+        # then hide dirnames
+        if not recursive and level <= cur_level:
+            dirnames = []
+        create_index(root, dirnames, filenames, template,
+                     excluded_paths, excluded_names, show_hidden, cur_level)
         # only one .css is needed
         if cur_level == 0:
             shutil.copy(css_path, root)
@@ -189,7 +217,7 @@ def main():
                         action='store_true')
     args = parser.parse_args()
 
-
+    # check paths given by the user
     if not os.path.isdir(args.path):
         print('{} is not a directory'.format(args.path))
         sys.exit(1)
