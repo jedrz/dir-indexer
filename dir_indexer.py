@@ -139,13 +139,7 @@ def generate(path, template_dir, quiet=False, recursive=False, level=0,
     # hide index.html and styles.css
     excluded_names += ['index.html', 'styles.css']
     # choose walk function (with limited recursion depth or no)
-    #mywalk = lambda p: walk_level(p) if recursive else lambda p: \
-    #        walk_level(p, level)
-    # (the shortcut doesn't work ???)
-    if recursive:
-        mywalk = lambda p: walk_level(p)
-    else:
-        mywalk = lambda p: walk_level(p, level)
+    mywalk = lambda p: walk_level(p, -1 if recursive else level)
     for root, dirnames, filenames, cur_level in mywalk(path):
         if recursive or level > cur_level:
             create_index(root, dirnames, filenames, template,
