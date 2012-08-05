@@ -21,13 +21,13 @@ TABLE_HEADING = '''    <tr>
     </tr>'''
 
 TABLE_DIR = '''    <tr>
-        <td class="name"><a href="{name}/index.html">{name}</a></td>
+        <td class="name"><a href="{esc_name}/index.html">{name}</a></td>
         <td class="modified">{modified}</td>
-        <td></td>
+        <td class="size"></td>
     </tr>'''
 
 TABLE_FILE = '''    <tr>
-        <td class="name"><a href="{name}">{name}</a></td>
+        <td class="name"><a href="{esc_name}">{name}</a></td>
         <td class="modified">{modified}</td>
         <td class="size">{size}</td>
     </tr>'''
@@ -76,6 +76,11 @@ def is_excluded(path, excluded_paths, excluded_names, show_hidden=False):
     return False
 
 
+def escape_characters(s):
+    """Espace spaces as %20"""
+    return s.replace(' ', '%20')
+
+
 def create_index(root, dirnames, filenames, template, excluded_paths=[],
                  excluded_names=[], show_hidden=False, level=0):
     """Create the index for 'root' directory. Simply a table with
@@ -106,6 +111,7 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
                            excluded_names, show_hidden):
             statinfo = os.stat(os.path.join(root, d))
             table.append(TABLE_DIR.format(
+                esc_name=escape_characters(d),
                 name=d,
                 modified=format_mtime(statinfo.st_mtime)))
     for f in sorted(filenames, key=str.lower):
@@ -113,6 +119,7 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
                            excluded_names, show_hidden):
             statinfo = os.stat(os.path.join(root, f))
             table.append(TABLE_FILE.format(
+                esc_name=escape_characters(f),
                 name=f,
                 modified=format_mtime(statinfo.st_mtime),
                 size=format_size(statinfo.st_size)))
