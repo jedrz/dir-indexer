@@ -194,9 +194,8 @@ def generate(path, template_dir, quiet=False, recursive=False, level=0,
         template = template.read()
     # hide index.html and styles.css
     excluded_names += ['index.html', 'styles.css']
-    # choose walk function (with limited recursion depth or no)
-    mywalk = lambda p: walk_level(p, -1 if recursive else level)
-    for root, dirnames, filenames, cur_level in mywalk(path):
+    for root, dirnames, filenames, cur_level in walk_level(
+            path, -1 if recursive else level):
         # check if current directory is the last to be indexed
         # then hide dirnames
         if not recursive and level <= cur_level:
