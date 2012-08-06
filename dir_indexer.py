@@ -82,7 +82,7 @@ def escape_characters(s):
 
 
 def create_index(root, dirnames, filenames, template, excluded_paths=[],
-                 excluded_names=[], show_hidden=False, level=0):
+                 excluded_names=[], show_hidden=False, level=0, rel_dir=''):
     """Create the index for 'root' directory. Simply a table with
     the content of 'root' is inserted into template.
 
@@ -103,6 +103,7 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
     show_hidden -- show hidden files (starting with '.')
     level -- current level from the first indexed directory
              (only to use one .css file)
+    rel_dir -- initial directory - 'root'
     """
     # build table
     table = [TABLE_START, TABLE_HEADING]
@@ -132,7 +133,25 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
         # fill the template
         index_file.write(template.format(index='\n'.join(table),
                                          gen_date=gen_date,
-                                         level='../' * level))
+                                         level='../' * level,
+                                         rel_dir=rel_dir))
+
+
+def get_rel_dir(root, path):
+    """Return root - path.
+
+    example:
+    root = '/home/user/sth1/sth2'
+    path = '/home/user/sth1/sth2/sth3/sth4'
+    result: /sth3/sth4
+    """
+    root = os.path.normpath(root)
+    path = os.path.normpath(path)
+    assert path[:len(root)] == root
+    if len(root) == len(path):
+        return '/'
+    else:
+        return path[len(root):]
 
 
 def walk_level(path, level=-1):
@@ -183,7 +202,8 @@ def generate(path, template_dir, quiet=False, recursive=False, level=0,
         if not recursive and level <= cur_level:
             dirnames = []
         create_index(root, dirnames, filenames, template,
-                     excluded_paths, excluded_names, show_hidden, cur_level)
+                     excluded_paths, excluded_names, show_hidden, cur_level,
+                     get_rel_dir(path, root))
         # only one .css is needed
         if cur_level == 0:
             shutil.copy(css_path, root)
