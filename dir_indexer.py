@@ -8,6 +8,7 @@ import time
 import datetime
 import sys
 import argparse
+import string
 
 
 DATE_FORMAT = '%d-%m-%Y %H:%M'
@@ -82,7 +83,7 @@ def escape_characters(s):
 
 
 def create_index(root, dirnames, filenames, template, excluded_paths=[],
-                 excluded_names=[], show_hidden=False, level=0, rel_dir=''):
+                 excluded_names=[], show_hidden=False, rel_dir=''):
     """Create the index for 'root' directory. Simply a table with
     the content of 'root' is inserted into template.
 
@@ -93,16 +94,13 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
     root -- path to directory which should be indexed
     dirnames -- names of directories in 'root'
     filenames -- files in 'root'
-    template -- html template string with (most of them are optional):
-                {index} - table with the content of 'root' will be placed here
-                {gen_date} - generation date
-                {level} - [required] to handle path to .css file
-                          (some amount of ../ are inserted)
+    template -- html template string with:
+                $index - table with the content of 'root' will be placed here
+                $gen_date - generation date
+                $rel_dir - path from initial directory
     excluded_paths -- paths which should be excluded from indexing
     excluded_names -- {file,dir}names which should be excluded from indexing
     show_hidden -- show hidden files (starting with '.')
-    level -- current level from the first indexed directory
-             (only to use one .css file)
     rel_dir -- initial directory - 'root'
     """
     # build table
@@ -131,10 +129,9 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
 
     with open(os.path.join(root, 'index.html'), 'w') as index_file:
         # fill the template
-        index_file.write(template.format(index='\n'.join(table),
-                                         gen_date=gen_date,
-                                         level='../' * level,
-                                         rel_dir=rel_dir))
+        index_file.write(template.safe_substitute(index='\n'.join(table),
+                                                  gen_date=gen_date,
+                                                  rel_dir=rel_dir))
 
 
 def get_rel_dir(path, root):
@@ -171,13 +168,13 @@ def walk_level(path, level=-1):
             del dirnames[:]
 
 
-def generate(path, template_dir, quiet=False, recursive=False, level=0,
+def generate(path, template_path, quiet=False, recursive=False, level=0,
              excluded_paths=[], excluded_names=[], show_hidden=False):
     """Create the index for 'path' and optionally deeper with a template.
 
     arguments:
     path -- where the indexing should start
-    template_dir -- path to directory with index.html and styles.css files
+    template_path -- path to html template
     quiet -- will print some information or no
     recursive -- should directiory in 'path' be indexed recursively,
                  if 'recursive' is True then 'level' is ignored
@@ -187,12 +184,10 @@ def generate(path, template_dir, quiet=False, recursive=False, level=0,
     excluded_names -- {file,dir}names which should be excluded from indexing
     show_hidden -- show hidden files (starting with '.')
     """
-    template_path = os.path.join(template_dir, 'index.html')
-    css_path = os.path.join(template_dir, 'styles.css')
-    with open(template_path) as template:
-        template = template.read()
-    # hide index.html and styles.css
-    excluded_names += ['index.html', 'styles.css']
+    with open(template_path) as template_source:
+        template = string.Template(template_source.read())
+    # hide index.html
+    excluded_names += ['index.html']
     for root, dirnames, filenames, cur_level in walk_level(
             path, -1 if recursive else level):
         # check if current directory is the last to be indexed
@@ -200,11 +195,8 @@ def generate(path, template_dir, quiet=False, recursive=False, level=0,
         if not recursive and level <= cur_level:
             dirnames = []
         create_index(root, dirnames, filenames, template,
-                     excluded_paths, excluded_names, show_hidden, cur_level,
+                     excluded_paths, excluded_names, show_hidden,
                      get_rel_dir(root, path))
-        # only one .css is needed
-        if cur_level == 0:
-            shutil.copy(css_path, root)
         if not quiet:
             print('Directory {} indexed'.format(root))
 
@@ -214,11 +206,10 @@ def main():
         description='Generate a html file with the content of directory',
         epilog='All index.html and styles.css files will be OVERWRITTEN')
     parser.add_argument('path',
-                        help='path to public folder')
+                        help='path to index')
     parser.add_argument('-t', '--template',
-                        help='path to template directory with index.html '
-                             'and styles.css files',
-                        default='templates/default')
+                        help='path to template HTML file',
+                        default='templates/default.html')
     parser.add_argument('-q', '--quiet',
                         help='print nothing',
                         action='store_true')
@@ -246,9 +237,8 @@ def main():
     if not os.path.isdir(args.path):
         print('{} is not a directory'.format(args.path))
         sys.exit(1)
-    if not (os.path.isfile(os.path.join(args.template, 'index.html')) and
-            os.path.isfile(os.path.join(args.template, 'styles.css'))):
-        print('Given template path {} is invalid'.format(args.template))
+    if not (os.path.isfile(args.template)):
+        print('Given template path {} is not a file'.format(args.template))
         sys.exit(1)
 
     generate(args.path, args.template, args.quiet, args.recursive, args.level,
