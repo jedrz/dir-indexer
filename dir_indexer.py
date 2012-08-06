@@ -204,11 +204,11 @@ def generate(path, template_path, quiet=False, recursive=False, level=0,
 def main():
     parser = argparse.ArgumentParser(
         description='Generate a html file with the content of directory',
-        epilog='All index.html and styles.css files will be OVERWRITTEN')
+        epilog='All index.html files will be OVERWRITTEN')
     parser.add_argument('path',
                         help='path to index')
     parser.add_argument('-t', '--template',
-                        help='path to template HTML file',
+                        help='path to HTML template file',
                         default='templates/default.html')
     parser.add_argument('-q', '--quiet',
                         help='print nothing',
