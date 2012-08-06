@@ -137,18 +137,17 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
                                          rel_dir=rel_dir))
 
 
-def get_rel_dir(root, path):
-    """Return root - path.
+def get_rel_dir(path, root):
+    """Return path - root.
 
     example:
-    root = '/home/user/sth1/sth2'
     path = '/home/user/sth1/sth2/sth3/sth4'
+    root = '/home/user/sth1/sth2'
     result: /sth3/sth4
     """
-    root = os.path.normpath(root)
     path = os.path.normpath(path)
-    assert path[:len(root)] == root
-    if len(root) == len(path):
+    root = os.path.normpath(root)
+    if len(path) == len(root):
         return '/'
     else:
         return path[len(root):]
@@ -202,7 +201,7 @@ def generate(path, template_dir, quiet=False, recursive=False, level=0,
             dirnames = []
         create_index(root, dirnames, filenames, template,
                      excluded_paths, excluded_names, show_hidden, cur_level,
-                     get_rel_dir(path, root))
+                     get_rel_dir(root, path))
         # only one .css is needed
         if cur_level == 0:
             shutil.copy(css_path, root)
