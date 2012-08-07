@@ -6,7 +6,7 @@ table with links to files and folder (links to folders point to
 
 
 ## Installation
-Just clone the repository and run *dir_indexer.py* with proper arguments.
+Just clone the repository and run `dir_indexer.py` with proper arguments.
 
 ### Requirements
 This script was tested under Python 2.7 and Python 3.2.
