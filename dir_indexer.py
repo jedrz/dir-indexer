@@ -105,23 +105,27 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
     """
     # build table
     table = [TABLE_START, TABLE_HEADING]
-    for d in sorted(dirnames, key=str.lower):
-        if not is_excluded(os.path.join(root, d), excluded_paths,
-                           excluded_names, show_hidden):
-            statinfo = os.stat(os.path.join(root, d))
-            table.append(TABLE_DIR.format(
-                esc_name=escape_characters(d),
-                name=d,
-                modified=format_mtime(statinfo.st_mtime)))
-    for f in sorted(filenames, key=str.lower):
-        if not is_excluded(os.path.join(root, f), excluded_paths,
-                           excluded_names, show_hidden):
-            statinfo = os.stat(os.path.join(root, f))
-            table.append(TABLE_FILE.format(
-                esc_name=escape_characters(f),
-                name=f,
-                modified=format_mtime(statinfo.st_mtime),
-                size=format_size(statinfo.st_size)))
+    # is_excluded shortut for use of filter function
+    is_excluded_short = \
+        lambda path: not is_excluded(path, excluded_paths, excluded_names,
+                                     show_hidden)
+    for d in sorted(
+            filter(is_excluded_short, dirnames),
+            key=str.lower):
+        statinfo = os.stat(os.path.join(root, d))
+        table.append(TABLE_DIR.format(
+            esc_name=escape_characters(d),
+            name=d,
+            modified=format_mtime(statinfo.st_mtime)))
+    for f in sorted(
+            filter(is_excluded_short, filenames),
+            key=str.lower):
+        statinfo = os.stat(os.path.join(root, f))
+        table.append(TABLE_FILE.format(
+            esc_name=escape_characters(f),
+            name=f,
+            modified=format_mtime(statinfo.st_mtime),
+            size=format_size(statinfo.st_size)))
     table.append(TABLE_END)
 
     gen_date = datetime.datetime.now()
