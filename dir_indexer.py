@@ -94,7 +94,7 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
     root -- path to directory which should be indexed
     dirnames -- names of directories in 'root'
     filenames -- files in 'root'
-    template -- html template string with:
+    template -- string.Template instance with:
                 $index - table with the content of 'root' will be placed here
                 $gen_date - generation date
                 $rel_dir - path from initial directory
