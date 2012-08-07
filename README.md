@@ -1,8 +1,8 @@
 ## Description
 *dir-indexer* is a simple index of directory generator written in Python. The
-result is an HTML file with the index of the directory as a table with links to
-files and folder (links to folders point to folder_name/index.html) within the
-directory, size and modification date.
+result is an HTML file (`index.html`) with the index of the directory as a
+table with links to files and folder (links to folders point to
+`folder_name/index.html`) within the directory, size and modification date.
 
 
 ## Installation
@@ -42,11 +42,11 @@ Help printed using `-h/--help` option.
 #### Example usage
     python dir_indexer.py path/to/folder -r -t templates/default.html
 This command will create indexes in *folder* recursively with
-*default.html* used as a template.
+`default.html` used as a template.
 
 ### Templates
 *.html* template should contain some keywords which will be substitued
 (none of them is required):
 * `$index` - table with the content of directory will be placed here
 * `$gen_date` - when the index was created
-* `$rel\_dir` - relative to the initial directory path
+* `$rel_dir` - relative to the initial directory path
