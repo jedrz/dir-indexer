@@ -112,25 +112,22 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
     for d in sorted(
             filter(is_excluded_short, dirnames),
             key=str.lower):
-        statinfo = os.stat(os.path.join(root, d))
         table.append(TABLE_DIR.format(
             esc_name=escape_characters(d),
             name=d,
-            modified=format_mtime(statinfo.st_mtime)))
+            modified=format_mtime(os.path.getmtime(os.path.join(root, d)))))
     for f in sorted(
             filter(is_excluded_short, filenames),
             key=str.lower):
-        statinfo = os.stat(os.path.join(root, f))
         table.append(TABLE_FILE.format(
             esc_name=escape_characters(f),
             name=f,
-            modified=format_mtime(statinfo.st_mtime),
-            size=format_size(statinfo.st_size)))
+            modified=format_mtime(os.path.getmtime(os.path.join(root, f))),
+            size=format_size(os.path.getsize(os.path.join(root, f)))))
     table.append(TABLE_END)
 
-    gen_date = datetime.datetime.now()
-    gen_date = gen_date.strftime(DATE_FORMAT)
-
+    gen_date = datetime.datetime.now().strftime(DATE_FORMAT)
+    
     with open(os.path.join(root, 'index.html'), 'w') as index_file:
         # fill the template
         index_file.write(template.safe_substitute(index='\n'.join(table),
