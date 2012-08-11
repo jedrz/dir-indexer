@@ -37,6 +37,7 @@ TABLE_END = '</table>'
 
 
 def format_size(size_b):
+    size_b = float(size_b)
     if size_b <= 1024:
         return '{:.2f} b'.format(size_b)
     size_kb = size_b / 1024
