@@ -37,18 +37,14 @@ TABLE_END = '</table>'
 
 
 def format_size(size_b):
-    size_b = float(size_b)
-    if size_b <= 1024:
-        return '{:.2f} b'.format(size_b)
-    size_kb = size_b / 1024
-    if size_kb <= 1024:
-        return '{:.2f} kb'.format(size_kb)
-    size_mb = size_kb / 1024
-    if size_mb <= 1024:
-        return '{:.2f} mb'.format(size_mb)
-    size_gb = size_mb / 1024
-    return '{:.2f} gb'.format(size_gb)
-
+    """Format size given in bytes"""
+    units = ('B', 'KB', 'MB', 'GB')
+    size = float(size_b)
+    for unit in units:
+        if size <= 2048 or unit == units[-1]:
+            return '{:.2f} {}'.format(size, unit)
+        size /= 1024
+    
 
 def format_mtime(mtime):
     """Format time given in seconds"""
