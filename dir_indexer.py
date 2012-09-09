@@ -44,7 +44,7 @@ def format_size(size_b):
         if size <= 2048 or unit == units[-1]:
             return '{:.2f} {}'.format(size, unit)
         size /= 1024
-    
+
 
 def format_mtime(mtime):
     """Format time given in seconds"""
@@ -54,7 +54,7 @@ def format_mtime(mtime):
 
 def is_excluded(path, excluded_paths, excluded_names, show_hidden=False):
     """Check if 'path' is excluded in some way.
-    
+
     arguments:
     path -- path to check
     excluded_paths -- paths which are compared with 'path' as the same files
@@ -84,7 +84,7 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
     """Create the index for 'root' directory. Simply a table with
     the content of 'root' is inserted into template.
 
-    The index is saved in root/index.html. 
+    The index is saved in root/index.html.
     Existing index.html will be overwritten.
 
     arguments:
@@ -124,7 +124,7 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
     table.append(TABLE_END)
 
     gen_date = datetime.datetime.now().strftime(DATE_FORMAT)
-    
+
     with open(os.path.join(root, 'index.html'), 'w') as index_file:
         # fill the template
         index_file.write(template.safe_substitute(index='\n'.join(table),
@@ -153,7 +153,7 @@ def walk_level(path, level=-1):
     from 'path'.
     Argument 'level' -- how deep the recusion will go (if less than 0 then
     there is no limit).
-    
+
     from: http://stackoverflow.com/a/234329
     """
     num_sep = path.count(os.sep)
