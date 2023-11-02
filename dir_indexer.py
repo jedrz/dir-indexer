@@ -51,7 +51,25 @@ def format_mtime(mtime):
     return time.strftime(DATE_FORMAT, mtime)
 
 
-def is_excluded(path, excluded_paths, excluded_names, show_hidden=False):
+def _is_excluded_name(name, excluded_names):
+    return name in excluded_names
+
+
+def _is_excluded_path(path, excluded_paths):
+    for ex in excluded_paths:
+        try:
+            return os.path.samefile(path, ex)
+        except OSError:
+            pass
+
+
+def _should_exclude_hidden(name, show_hidden=False):
+    return show_hidden and os.path.basename(name).startswith('.')
+
+
+def is_excluded(root, name,
+                excluded_paths, excluded_names,
+                show_hidden=False):
     """Check if 'path' is excluded in some way.
 
     arguments:
@@ -60,17 +78,9 @@ def is_excluded(path, excluded_paths, excluded_names, show_hidden=False):
     excluded_names -- basename of 'path' is compared with them
     show_hidden -- show hidden files (starting with '.')
     """
-    for ex in excluded_paths:
-        try:
-            if os.path.samefile(path, ex):
-                return True
-        except OSError:
-            pass
-    if os.path.basename(path) in excluded_names:
-        return True
-    if not show_hidden and os.path.basename(path).startswith('.'):
-        return True
-    return False
+    return _is_excluded_name(name, excluded_names) \
+        or _is_excluded_path(os.path.join(root, name), excluded_paths) \
+        or _should_exclude_hidden(name, show_hidden)
 
 
 def escape_characters(s):
@@ -103,7 +113,8 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
     table = [TABLE_START, TABLE_HEADING]
     # is_excluded shortut for use of filter function
     is_excluded_short = \
-        lambda path: not is_excluded(path, excluded_paths, excluded_names,
+        lambda name: not is_excluded(root, name,
+                                     excluded_paths, excluded_names,
                                      show_hidden)
     for d in sorted(
             filter(is_excluded_short, dirnames),
@@ -185,14 +196,17 @@ def generate(path, template_path, quiet=False, recursive=False, level=0,
         template = string.Template(template_source.read())
     # hide index.html
     excluded_names += ['index.html']
+    real_path = os.path.realpath(path)
+    abs_excluded_paths = [os.path.realpath(os.path.join(real_path, e))
+                          for e in excluded_paths]
     for root, dirnames, filenames, cur_level in walk_level(
-            path, -1 if recursive else level):
+            real_path, -1 if recursive else level):
         # check if current directory is the last to be indexed
         # then hide dirnames
         if not recursive and level <= cur_level:
             dirnames = []
         create_index(root, dirnames, filenames, template,
-                     excluded_paths, excluded_names, show_hidden,
+                     abs_excluded_paths, excluded_names, show_hidden,
                      get_rel_dir(root, path))
         if not quiet:
             print('Directory {} indexed'.format(root))
