@@ -8,6 +8,7 @@ import datetime
 import sys
 import argparse
 import string
+from pathlib import Path
 
 
 DATE_FORMAT = '%d-%m-%Y %H:%M'
@@ -63,12 +64,18 @@ def _is_excluded_path(path, excluded_paths):
             pass
 
 
+def _is_excluded_pattern(path, excluded_patterns):
+    for pattern in excluded_patterns:
+        return Path(path).match(pattern)
+    return False
+
+
 def _should_exclude_hidden(name, show_hidden=False):
     return show_hidden and os.path.basename(name).startswith('.')
 
 
 def is_excluded(root, name,
-                excluded_paths, excluded_names,
+                excluded_paths, excluded_names, excluded_patterns,
                 show_hidden=False):
     """Check if 'path' is excluded in some way.
 
@@ -78,9 +85,11 @@ def is_excluded(root, name,
     excluded_names -- basename of 'path' is compared with them
     show_hidden -- show hidden files (starting with '.')
     """
+    path = os.path.join(root, name)
     return _is_excluded_name(name, excluded_names) \
-        or _is_excluded_path(os.path.join(root, name), excluded_paths) \
-        or _should_exclude_hidden(name, show_hidden)
+        or _is_excluded_path(path, excluded_paths) \
+        or _should_exclude_hidden(name, show_hidden) \
+        or _is_excluded_pattern(path, excluded_patterns)
 
 
 def escape_characters(s):
@@ -88,8 +97,10 @@ def escape_characters(s):
     return s.replace(' ', '%20')
 
 
-def create_index(root, dirnames, filenames, template, excluded_paths=[],
-                 excluded_names=[], show_hidden=False, rel_dir=''):
+def create_index(root, dirnames, filenames, template,
+                 excluded_paths=[], excluded_names=[], excluded_patterns=[],
+                 show_hidden=False,
+                 rel_dir=''):
     """Create the index for 'root' directory. Simply a table with
     the content of 'root' is inserted into template.
 
@@ -114,7 +125,7 @@ def create_index(root, dirnames, filenames, template, excluded_paths=[],
     # is_excluded shortut for use of filter function
     is_excluded_short = \
         lambda name: not is_excluded(root, name,
-                                     excluded_paths, excluded_names,
+                                     excluded_paths, excluded_names, excluded_patterns,
                                      show_hidden)
     for d in sorted(
             filter(is_excluded_short, dirnames),
@@ -177,7 +188,8 @@ def walk_level(path, level=-1):
 
 
 def generate(path, template_path, quiet=False, recursive=False, level=0,
-             excluded_paths=[], excluded_names=[], show_hidden=False):
+             excluded_paths=[], excluded_names=[], excluded_patterns=[],
+             show_hidden=False):
     """Create the index for 'path' and optionally deeper with a template.
 
     arguments:
@@ -206,7 +218,8 @@ def generate(path, template_path, quiet=False, recursive=False, level=0,
         if not recursive and level <= cur_level:
             dirnames = []
         create_index(root, dirnames, filenames, template,
-                     abs_excluded_paths, excluded_names, show_hidden,
+                     abs_excluded_paths, excluded_names, excluded_patterns,
+                     show_hidden,
                      get_rel_dir(root, path))
         if not quiet:
             print('Directory {} indexed'.format(root))
@@ -239,6 +252,9 @@ def main():
                         help='exclude name(s) from being indexed '
                              '(basenames are being compared)',
                         nargs='+', default=[], metavar='NAME')
+    parser.add_argument('--exclude-patterns',
+                        help='exclude GLOB pattern(s) from being indexed',
+                        nargs='+', default=[], metavar='PATTERN')
     parser.add_argument('--hidden',
                         help='show hidden files',
                         action='store_true')
@@ -253,7 +269,8 @@ def main():
         sys.exit(1)
 
     generate(args.path, args.template, args.quiet, args.recursive, args.level,
-             args.exclude, args.exclude_names, args.hidden)
+             args.exclude, args.exclude_names, args.exclude_patterns,
+             args.hidden)
 
 
 if __name__ == '__main__':

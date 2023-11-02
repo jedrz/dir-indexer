@@ -9,34 +9,33 @@ directory, size and modification date.
 Just clone the repository and run `dir_indexer.py` with proper arguments.
 
 ### Requirements
-This script was tested under Python 2.7 and 3.2.
+This script requires at least Python 3.4.
 
 ## Usage
 ### Help
 Help printed using `-h/--help` option.
 
-    usage: dir_indexer.py [-h] [-t TEMPLATE] [-q] [-R | -l LEVEL]
-                          [-e PATH [PATH ...]] [--exclude-names NAME [NAME ...]]
-                          [--hidden]
-                          path
+    usage: dir_indexer.py [-h] [-t TEMPLATE] [-q] [-R | -l LEVEL] [-e PATH [PATH ...]] [--exclude-names NAME [NAME ...]] [--exclude-patterns PATTERN [PATTERN ...]] [--hidden] path
+
+    Generate a html file with the content of directory
 
     positional arguments:
       path                  path to index
 
-    optional arguments:
+    options:
       -h, --help            show this help message and exit
       -t TEMPLATE, --template TEMPLATE
                             path to HTML template file
       -q, --quiet           print nothing
       -R, -r, --recursive   generate pages recursively
       -l LEVEL, --level LEVEL
-                            generate pages recursively with the maximum recursion
-                            depth level
+                            generate pages recursively with the maximum recursion depth level
       -e PATH [PATH ...], --exclude PATH [PATH ...]
                             exclude path(s) from being indexed
       --exclude-names NAME [NAME ...]
-                            exclude name(s) from being indexed (basenames are
-                            being compared)
+                            exclude name(s) from being indexed (basenames are being compared)
+      --exclude-patterns PATTERN [PATTERN ...]
+                            exclude GLOB pattern(s) from being indexed
       --hidden              show hidden files
 
 #### Example usage
