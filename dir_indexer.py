@@ -196,11 +196,11 @@ def generate(path, template_path, quiet=False, recursive=False, level=0,
         template = string.Template(template_source.read())
     # hide index.html
     excluded_names += ['index.html']
-    real_path = os.path.realpath(path)
-    abs_excluded_paths = [os.path.realpath(os.path.join(real_path, e))
+    norm_path = os.path.normpath(path)
+    abs_excluded_paths = [os.path.normpath(os.path.join(norm_path, e))
                           for e in excluded_paths]
     for root, dirnames, filenames, cur_level in walk_level(
-            real_path, -1 if recursive else level):
+            norm_path, -1 if recursive else level):
         # check if current directory is the last to be indexed
         # then hide dirnames
         if not recursive and level <= cur_level:
